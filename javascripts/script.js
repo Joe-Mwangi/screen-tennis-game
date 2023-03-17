@@ -1,7 +1,9 @@
 // Canvas Related 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
-const socket = io('http://localhost:4000')
+const socket = io('http://localhost:4500')
+let isReferee = false
+
 let paddleIndex = 0;
 
 let width = 500;
@@ -163,10 +165,7 @@ function animate() {
 
 // Start Game, Reset Everything
 function startGame() {
-  createCanvas();
-  renderIntro();
-  
-  paddleIndex = 0;
+  paddleIndex = isReferee ? 0 : 1;
   window.requestAnimationFrame(animate);
   canvas.addEventListener('mousemove', (e) => {
     playerMoved = true;
@@ -182,6 +181,18 @@ function startGame() {
   });
 }
 
+function loadGame() {
+  createCanvas();
+  renderIntro();
+  socket.emit('ready')
+}
+
 // On Load
-startGame();
+loadGame();
+socket.on('connect', () => console.log(`Connected as ${socket.id}`))
+socket.on('startGame', referreId => {
+  console.log('Referee is', referreId)
+  isReferee = socket.id === referreId
+  startGame()
+})
 
