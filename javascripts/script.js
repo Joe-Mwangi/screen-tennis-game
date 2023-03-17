@@ -91,6 +91,8 @@ function ballReset() {
   ballX = width / 2;
   ballY = height / 2;
   speedY = 3;
+
+  socket.emit('ballMove', {ballX, ballY})
 }
 
 // Adjust Ball Movement
@@ -101,6 +103,8 @@ function ballMove() {
   if (playerMoved) {
     ballX += speedX;
   }
+
+  socket.emit('ballMove', {ballX, ballY})
 }
 
 // Determine What Ball Bounces Off, Score Points, Reset Ball
@@ -157,9 +161,11 @@ function ballBoundaries() {
 
 // Called Every Frame
 function animate() {
-  ballMove();
+  if(isReferee) {
+    ballMove();
+    ballBoundaries();
+  }
   renderCanvas();
-  ballBoundaries();
   window.requestAnimationFrame(animate);
 }
 
@@ -170,12 +176,15 @@ function startGame() {
   canvas.addEventListener('mousemove', (e) => {
     playerMoved = true;
     paddleX[paddleIndex] = e.offsetX;
-    if (paddleX[paddleIndex] < 0) {
+    if (paddleX[paddleIndex] < 0) { 
       paddleX[paddleIndex] = 0;
     }
     if (paddleX[paddleIndex] > (width - paddleWidth)) {
       paddleX[paddleIndex] = width - paddleWidth;
     }
+    socket.emit('paddleMove', {
+      xPosition: paddleX[paddleIndex]
+    })
     // Hide Cursor
     canvas.style.cursor = 'none';
   });
@@ -196,3 +205,8 @@ socket.on('startGame', referreId => {
   startGame()
 })
 
+socket.on('paddleMove', paddleData => {
+  //toggle 1 into 0 , and o to 1
+  const opponentPaddleIndex = 1 - paddleIndex
+  paddleX[opponentPaddleIndex] = paddleData
+})
