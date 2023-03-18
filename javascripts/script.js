@@ -92,7 +92,11 @@ function ballReset() {
   ballY = height / 2;
   speedY = 3;
 
-  socket.emit('ballMove', {ballX, ballY})
+  socket.emit('ballMove', {
+    ballX,
+    ballY,
+    score
+  })
 }
 
 // Adjust Ball Movement
@@ -104,7 +108,11 @@ function ballMove() {
     ballX += speedX;
   }
 
-  socket.emit('ballMove', {ballX, ballY})
+  socket.emit('ballMove', {
+    ballX,
+    ballY,
+    score
+  })
 }
 
 // Determine What Ball Bounces Off, Score Points, Reset Ball
@@ -209,4 +217,7 @@ socket.on('paddleMove', paddleData => {
   //toggle 1 into 0 , and o to 1
   const opponentPaddleIndex = 1 - paddleIndex
   paddleX[opponentPaddleIndex] = paddleData
+})
+socket.on('ballMove', ballData => {
+  ({ballX, ballY, score} = ballData)
 })
