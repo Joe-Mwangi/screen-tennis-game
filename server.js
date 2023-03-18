@@ -1,31 +1,15 @@
-const server = require('http').createServer()
-const io = require('socket.io')(server)
+const http = require('http')
+const io = require('socket.io')
+const app = require('./app')
+const socketFunc = require('./sockets')
+
+const httpServer = http.createServer(app)
+const socketServer = io(httpServer)
+
 const port = 4500
 
-server.listen(port)
+httpServer.listen(port)
 console.log(`Server listening on port ${port}...`)
  
-let readyPlayerCount = 0;
-io.on('connection', socket => {
-    console.log('a user connected with ', socket.id)
-
-    socket.on('ready', () => {
-        console.log('Player ready ', socket.id)
-        readyPlayerCount++
-        if(readyPlayerCount %2 === 0) {
-            io.emit('startGame', socket.id)
-        }
-    })
-
-    socket.on('paddleMove', paddleData => {
-        socket.broadcast.emit('paddleMove', paddleData)
-    })
-
-    socket.on('ballMove', ballData => {
-        socket.broadcast.emit('ballMove', ballData)
-    })
-
-    socket.on('disconnect', reason => {
-        console.log(`Player ${socket.id} disconnected: ${reason}`)
-    })
-})
+socketFunc(socketServer)
+ 
