@@ -216,8 +216,9 @@ socket.on('startGame', referreId => {
 socket.on('paddleMove', paddleData => {
   //toggle 1 into 0 , and o to 1
   const opponentPaddleIndex = 1 - paddleIndex
-  paddleX[opponentPaddleIndex] = paddleData
+  paddleX[opponentPaddleIndex] = paddleData.xPosition
 })
+
 socket.on('ballMove', ballData => {
   ({ballX, ballY, score} = ballData)
 })
